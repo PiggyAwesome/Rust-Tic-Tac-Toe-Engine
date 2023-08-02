@@ -29,7 +29,7 @@ impl std::fmt::Display for Piece {
 #[derive(Clone, Copy)]
 pub struct Board(pub [Option<Piece>; 9]);
 
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub struct Node {
     pub score: i32,
     pub piece_move: usize,
@@ -98,7 +98,7 @@ impl Board {
         let maximizing = self.turn() == Piece::X;
         if maximizing {
             // X to move
-            let mut best: i32 = -1;
+            let mut best: i32 = -2;
             for piece_move in board.open() {
                 // Generate new board position after playing move.
                 board.0[piece_move] = Some(Piece::X);
@@ -111,7 +111,7 @@ impl Board {
             return best;
         } else {
             // O to move
-            let mut best: i32 = 1;
+            let mut best: i32 = 2;
             for piece_move in board.open() {
                 // Generate new position after playing move
                 board.0[piece_move] = Some(Piece::O);
@@ -133,7 +133,11 @@ impl Board {
             nodes.push(Node::new(piece_move, board.minimax()));
             board.0[piece_move] = None;
         }
-        nodes.sort_by(|a, b| a.score.partial_cmp(&b.score).unwrap());
+        if board.turn() == Piece::X {
+            nodes.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap());
+        } else {
+            nodes.sort_by(|a, b| a.score.partial_cmp(&b.score).unwrap());
+        }
         nodes[0]
     }
 }
